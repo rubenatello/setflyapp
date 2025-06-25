@@ -1,53 +1,75 @@
 // app/(tabs)/create.tsx
-import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import TrackList from '@/components/ui/TrackList';
+import TrackListControls from '@/components/ui/TrackListControl';
 import TrackRow from '@/components/ui/TrackRow';
 import { useTracksStore } from '@/store/tracks';
 import { useRouter, type Href } from 'expo-router';
+import { useMemo, useState } from 'react';
 
 export default function Create() {
-  const tracks   = useTracksStore((s) => s.tracks);
-  const addTrack = useTracksStore((s) => s.addTrack);
-  const nav      = useRouter();
+  const tracks = useTracksStore((s) => s.tracks);
+  const add    = useTracksStore((s) => s.addTrack);
+  const nav    = useRouter();
 
-  /* -------- handler for the "New Track" row -------- */
+  const [search, setSearch] = useState('');
+  const [sortBy, setSortBy] = useState<'title' | 'bpm' | 'key' | 'timeSig'>(
+    'title'
+  );
+
+  /* --- derive visible list --- */
+  const visibleTracks = useMemo(() => {
+    let list = [...tracks];
+
+    /* filter */
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter(
+        t =>
+          t.title.toLowerCase().includes(q) ||
+          t.key.toLowerCase().includes(q) ||
+          t.timeSig.toLowerCase().includes(q)
+      );
+    }
+
+    /* sort */
+    list.sort((a, b) => {
+      const av = a[sortBy] as any;
+      const bv = b[sortBy] as any;
+      return typeof av === 'number'
+        ? av - bv
+        : String(av).localeCompare(String(bv));
+    });
+
+    return list;
+  }, [tracks, search, sortBy]);
+
   const handleAdd = () => {
-    const id = addTrack();                                         // 1. create
+    const id = add();
+    setSearch('');
     nav.push({ pathname: '/track/[id]', params: { id } } as Href<'/track/[id]'>);
   };
 
   return (
     <ThemedView style={{ flex: 1, padding: 16 }}>
-      {/* optional empty-state text */}
-      {tracks.length === 0 && (
-        <ThemedText style={{ textAlign: 'center', marginBottom: 12 }}>
-          No tracks yet. Tap “New Track” below to get started!
-        </ThemedText>
-      )}
-
-      {/* ➕ Add-new row (styled variant) */}
+      {/* New-track card */}
       <TrackRow
         title="＋  New Track"
-        subtitle="Choose your key, tempo and time signature"
+        subtitle="Choose key, tempo & time-sig"
         onPress={handleAdd}
-        style={{
-          backgroundColor: '#007AFF',
-          borderWidth: 1,
-          borderColor: '#37f',
-        }}
+        style={{ backgroundColor: '#007AFF', marginBottom: 12 }}
       />
 
-      {/* Existing tracks */}
-      {tracks.map((t) => (
-        <TrackRow
-          key={t.id}
-          title={t.title}
-          subtitle={`${t.bpm} BPM · ${t.key} · ${t.timeSig}`}
-          onPress={() =>
-            nav.push({ pathname: '/track/[id]', params: { id: t.id } } as Href<'/track/[id]'>)
-          }
-        />
-      ))}
+      {/* search + sort UI */}
+      <TrackListControls
+        search={search}
+        onSearch={setSearch}
+        sortBy={sortBy}
+        onSort={setSortBy}
+      />
+
+      {/* list */}
+      <TrackList tracks={visibleTracks} style={{ marginTop: 12 }} />
     </ThemedView>
   );
 }

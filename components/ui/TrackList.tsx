@@ -1,7 +1,9 @@
+// components/ui/TrackList.tsx
 import { ThemedText } from '@/components/ThemedText';
 import { Track } from '@/store/tracks';
 import { FlatList, ViewStyle } from 'react-native';
 import TrackRow from './TrackRow';
+import { useRouter, type Href } from 'expo-router';
 
 export type SortKey = 'title' | 'bpm' | 'key' | 'timeSig';
 
@@ -18,9 +20,12 @@ export default function TrackList({
   sortBy = 'title',
   style,
 }: Props) {
+  const router = useRouter();
+
+  /* ---- build visible list ---- */
   let visible = [...tracks];
 
-  /* --- filter --- */
+  /* filter */
   if (searchQuery?.trim()) {
     const q = searchQuery.toLowerCase();
     visible = visible.filter(
@@ -31,7 +36,7 @@ export default function TrackList({
     );
   }
 
-  /* --- sort --- */
+  /* sort */
   visible.sort((a, b) => {
     const av = a[sortBy];
     const bv = b[sortBy];
@@ -39,6 +44,7 @@ export default function TrackList({
     return String(av).localeCompare(String(bv));
   });
 
+  /* empty state */
   if (visible.length === 0) {
     return (
       <ThemedText style={{ textAlign: 'center', marginTop: 24 }}>
@@ -47,12 +53,23 @@ export default function TrackList({
     );
   }
 
+  /* renderer */
   return (
     <FlatList
       style={style}
       data={visible}
       keyExtractor={(item) => item.id}
-      renderItem={({ item }) => <TrackRow track={item} />}
+      renderItem={({ item }) => (
+        <TrackRow
+          title={item.title}
+          subtitle={`${item.bpm} BPM · ${item.key} · ${item.timeSig}`}
+          onPress={() =>
+            router.push(
+              { pathname: '/track/[id]', params: { id: item.id } } as Href<'/track/[id]'>
+            )
+          }
+        />
+      )}
     />
   );
 }
