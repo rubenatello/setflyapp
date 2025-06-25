@@ -1,0 +1,50 @@
+{
+  "expo": {
+    "name": "setflyapp",
+    "slug": "setflyapp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "setflyapp",
+    "userInterfaceStyle": "automatic",
+    "extra": {
+      "FIREBASE_API_KEY": "AIzaSyD3bFykVGBACMaQ_J_oq-_uBmraBylp9Cg",
+      "FIREBASE_AUTH_DOMAIN": "setflyapp.firebaseapp.com",
+      "FIREBASE_PROJECT_ID": "setflyapp",
+      "FIREBASE_STORAGE_BUCKET": "setflyapp.firebasestorage.app",
+      "FIREBASE_MESSAGING_SENDER_ID": "917225332086",
+      "FIREBASE_APP_ID": "1:917225332086:web:067f3816b0abf8770bae57"
+    },  
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
